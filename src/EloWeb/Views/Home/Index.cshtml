@@ -1,48 +1,53 @@
-﻿@model System.Collections.Generic.IEnumerable<EloWeb.Models.Player>
+﻿@using EloWeb.Models
+@model System.Collections.Generic.IEnumerable<Player>
 
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h2>Leaderboard</h2>
-
-<h4>
-@Html.ActionLink("Add Game", "Create", "Games") | @Html.ActionLink("Add Player", "Create", "Players")
-</h4>
-
-<table class="table">
-    <tr>
-        <th>
-            Rank
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Rating)
-        </th>
-        <th>
-            Change
-        </th>
-    </tr>
+<div class="leaderboard container-fluid">
 
 @{ var rank = 1; }
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @rank
-        </td>
-        <td>
-            @Html.ActionLink(item.Name, "Details", "Players", new { name = item.Name }, null)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Rating)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.RatingChange)
-        </td>
-    </tr>
+@foreach (var player in Model) {
+<div class="player" data-bind="css: { selected: isSelected('@player.Name') }, click: function () { selectPlayer('@player.Name'); }">
+    <div class="details"> 
+        <div class="rank">@rank</div>
+        <div class="name">@player.Name</div>
+        <div class="rating">@player.Rating</div>
+    </div>   
+    <div class="form">@foreach (var result in player.RecentResults.Take(5)) {if(result == Player.Result.Win) {<div class="win"></div>} else {<div class="loss"></div>}}
+    </div>
+</div>
     rank++;
 }
-</table>
+</div>
+<div class="modal fade" id="addGame" tabindex="-1" role="dialog" aria-labelledby="addGameLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="addGameLabel">Who Won?</h4>
+      </div>
+      <div class="modal-body">
+           <div class="form-group">
+               <form action="~/Games/Create" method="post" class="winner-choice">
+                    <input type="hidden" name="Winner" data-bind="value: firstPlayer"/>
+                    <input type="hidden" name="Loser" data-bind="value: secondPlayer"/>
+                    <button class="btn btn-primary" type="submit" data-bind="text: firstPlayer"></button>
+               </form>
+               <form action="~/Games/Create" method="post" class="winner-choice">
+                    <input type="hidden" name="Winner" data-bind="value: secondPlayer"/>
+                    <input type="hidden" name="Loser" data-bind="value: firstPlayer"/>
+                    <button class="btn btn-primary" type="submit" data-bind="text: secondPlayer"></button>
+               </form>
+           </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+@section scripts {
+    <script src="~/scripts/leaderboard.js"></script>
+}

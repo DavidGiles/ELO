@@ -138,6 +138,18 @@ namespace EloWeb.Models
             return string.Join("", results);            
         }
 
+        public List<Result> RecentResults
+        {
+            get { return PlayedGames.Select(g => g.Winner == Name ? Result.Win : Result.Loss).Reverse().ToList(); }
+        }
+
+        public IEnumerable<Game> PlayedGames { get { return Games.GamesByPlayer(Name); } }
+
+        public enum Result {
+            Win,
+            Loss
+        }
+
         private int FindBestWinningStreak(string results)
         {
             var start = results.IndexOf('W');
